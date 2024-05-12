@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -48,26 +46,39 @@ public class Asteroid : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.tag == "Bullet")
+        if (collision.gameObject.CompareTag("Bullet"))
         {
-            if ((this.size * 0.5f) >= this.minSize)
+            // Check if the asteroid is large enough to split in half
+            // (both parts must be greater than the minimum size)
+            if ((size * 0.5f) >= minSize)
             {
                 CreateSplit();
                 CreateSplit();
             }
 
-            Destroy(this.gameObject);
-        }
+            GameManager.Instance.OnAsteroidDestroyed(this);
 
-        
+            // Destroy the current asteroid since it is either replaced by two
+            // new asteroids or small enough to be destroyed by the bullet
+            Destroy(gameObject);
+        }
     }
-    private void CreateSplit()
+
+    private Asteroid CreateSplit()
     {
-        Vector2 position = this.transform.position;
+        // Set the new asteroid poistion to be the same as the current asteroid
+        // but with a slight offset so they do not spawn inside each other
+        Vector2 position = transform.position;
         position += Random.insideUnitCircle * 0.5f;
 
-        Asteroid half = Instantiate(this, position, this.transform.rotation);
-        half.size = this.size * 0.5f;
-        half.SetTrajectory(Random.insideUnitCircle.normalized * this.movementSpeed);
-        }
+        // Create the new asteroid at half the size of the current
+        Asteroid half = Instantiate(this, position, transform.rotation);
+        half.size = size * 0.5f;
+
+        // Set a random trajectory
+        half.SetTrajectory(Random.insideUnitCircle.normalized);
+
+        return half;
+    }
+
 }

@@ -1,29 +1,32 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Bullet : MonoBehaviour
 {
-    public float speed = 500.0f;
-    
     private Rigidbody2D rb;
 
-    public float maxLifetime = 10.0f;
+    public float speed = 500f;
+    public float maxLifetime = 10f;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Project(Vector2 direction)
+    public void Shoot(Vector2 direction)
     {
-        rb.AddForce(direction * this.speed);
+        // The bullet only needs a force to be added once since they have no
+        // drag to make them stop moving
+        rb.AddForce(direction * speed);
 
-        Destroy(this.gameObject, this.maxLifetime);
+        // Destroy the bullet after it reaches it max lifetime
+        Destroy(gameObject, maxLifetime);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Destroy(this.gameObject);
+        // Destroy the bullet as soon as it collides with anything
+        Destroy(gameObject);
     }
+
 }

@@ -1,45 +1,105 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public Player player;
-    public float respawnTime = 3.0f;
-    public float respawnInvulnerabilityTime = 3.0f;
-    public int lives = 3;
+    public static GameManager Instance { get; private set; }
 
-    public void PlayerDied()
+    [SerializeField] private Player player;
+    [SerializeField] private ParticleSystem explosionEffect;
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private Text scoreText;
+    [SerializeField] private Text livesText;
+
+    private int score;
+    private int lives;
+
+    public int Score => score;
+    public int Lives => lives;
+
+    private void Awake()
     {
-        this.lives--;
+        if (Instance != null) {
+            DestroyImmediate(gameObject);
+        } else {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+    }
 
-        if(this.lives <= 0)
-        {
-            GameOver();
-        } else
-        {
-            Invoke(nameof(Respawn), this.respawnTime);
+    private void Start()
+    {
+        NewGame();
+    }
+
+    private void Update()
+    {
+        if (lives <= 0 && Input.GetKeyDown(KeyCode.Return)) {
+            NewGame();
+        }
+    }
+
+    private void NewGame()
+    {
+        Asteroid[] asteroids = FindObjectsOfType<Asteroid>();
+
+        for (int i = 0; i < asteroids.Length; i++) {
+            Destroy(asteroids[i].gameObject);
         }
 
-        Invoke(nameof(Respawn), this.respawnTime);
+        gameOverUI.SetActive(false);
+
+        SetScore(0);
+        SetLives(3);
+        Respawn();
+    }
+
+    private void SetScore(int score)
+    {
+        this.score = score;
+        scoreText.text = score.ToString();
+    }
+
+    private void SetLives(int lives)
+    {
+        this.lives = lives;
+        livesText.text = lives.ToString();
     }
 
     private void Respawn()
     {
-        
-        this.player.transform.position = Vector3.zero;
-        this.player.gameObject.layer = LayerMask.NameToLayer("IgnoreCollisions");
-        this.gameObject.SetActive(true);
-        this.player.Invoke(nameof(TurnOnCollisions), this.respawnInvulnerabilityTime);
+        player.transform.position = Vector3.zero;
+        player.gameObject.SetActive(true);
     }
 
-    private void TurnOnCollisions()
+    public void OnAsteroidDestroyed(Asteroid asteroid)
     {
-        this.player.gameObject.layer = LayerMask.NameToLayer("Player");
+        explosionEffect.transform.position = asteroid.transform.position;
+        explosionEffect.Play();
+
+        if (asteroid.size < 0.7f) {
+            SetScore(score + 100); // small asteroid
+        } else if (asteroid.size < 1.4f) {
+            SetScore(score + 50); // medium asteroid
+        } else {
+            SetScore(score + 25); // large asteroid
+        }
     }
 
-    private void GameOver()
+    public void OnPlayerDeath(Player player)
     {
-        //ToDO
+        player.gameObject.SetActive(false);
+
+        explosionEffect.transform.position = player.transform.position;
+        explosionEffect.Play();
+
+        SetLives(lives - 1);
+
+        if (lives <= 0) {
+            gameOverUI.SetActive(true);
+        } else {
+            Invoke(nameof(Respawn), player.respawnDelay);
+        }
     }
+
 }

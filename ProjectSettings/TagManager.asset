@@ -4,22 +4,23 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Bullet
   - Asteroid
+  - Bullet
+  - Boundary
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - 
   - Water
   - UI
+  - 
+  - 
+  - Player
   - Bullet
   - Asteroid
   - Boundary
-  - IgnoreCollisions
-  - 
-  - 
-  - 
+  - Ignore Collisions
   - 
   - 
   - 
