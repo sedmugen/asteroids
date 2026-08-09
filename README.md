@@ -8,10 +8,11 @@
 
 | Gameplay Action | Visual Preview |
 | :--- | :--- |
-| **Spaceship Movement & Firing** | ![Gameplay Demo](assets/gifs/demo.gif) |
-| **Asteroid Fracturing & UI** | ![Gameplay Screenshot](assets/images/gameplay.png) |
+| **Spaceship Movement & Firing** | ![Gameplay Demo](docs/assets/gifs/demo.gif) |
+| **Asteroid Fracturing & UI** | ![Gameplay Screenshot](docs/assets/images/gameplay.png) |
 
-*(Note: High-resolution media assets available in the [`assets/`](assets/) directory.)*
+*(Note: High-resolution media assets available in the [`docs/assets/`](docs/assets/) directory.)*
+
 
 ---
 
