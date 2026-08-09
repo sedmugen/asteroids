@@ -1,131 +1,127 @@
-# Asteroids
+# Asteroids 2D
 
-> A classic 2D arcade game built with Unity 2023 and C# featuring physics-driven movement, procedural asteroid splitting, and responsive arcade scoring systems.
+[![Unity Engine](https://img.shields.io/badge/Unity-2023.1.20f1-blue.svg?logo=unity)](https://unity.com/)
+[![C# Language](https://img.shields.io/badge/C%23-10.0-purple.svg?logo=c-sharp)](https://docs.microsoft.com/dotnet/csharp/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen.svg)](.github/workflows/ci.yml)
+
+> A modern, production-grade 2D recreation of the classic 1979 Atari arcade game *Asteroids*, engineered in Unity 2023 and C# with zero-gravity inertial physics, toroidal screen topology, and dynamic procedural object splitting.
 
 ---
 
 ## 📷 Gameplay Preview
 
-| Gameplay Action | Visual Preview |
+| Demonstration | Visual Showcase |
 | :--- | :--- |
-| **Spaceship Movement & Firing** | ![Gameplay Demo](docs/assets/gifs/demo.gif) |
-| **Asteroid Fracturing & UI** | ![Gameplay Screenshot](docs/assets/images/gameplay.png) |
+| **Inertial Spacecraft & Laser Firing** | ![Gameplay Demo](docs/assets/gifs/demo.gif) |
+| **Asteroid Fracturing & Score HUD** | ![Gameplay Screenshot](docs/assets/images/gameplay.png) |
 
-*(Note: High-resolution media assets available in the [`docs/assets/`](docs/assets/) directory.)*
-
+*(High-resolution visual assets and recordings are located in the [`docs/assets/`](docs/assets/) directory.)*
 
 ---
 
 ## 💡 Overview & Motivation
 
-**Asteroids** is a modernized 2D recreation of the classic 1979 Atari arcade game. The player controls a triangular spaceship navigating an obstacle-filled 2D space, destroying incoming asteroids while avoiding collisions.
+**Asteroids 2D** is an open-source arcade game built to demonstrate clean Unity software engineering, object lifecycle management, and physics-driven 2D gameplay programming.
 
-This project was built to demonstrate core game development fundamentals:
-* **Rigid-body Physics:** Using force vectors and torque for realistic inertial spaceship mechanics.
-* **Procedural Object Lifecycles:** Perimeter-based spawner logic and procedural splitting of parent game objects into dynamic children.
-* **Toroidal Screen Topology:** World-space camera boundary calculations allowing seamless screen wrapping.
-* **State & Life Management:** Event-driven Singleton pattern governing lives, score tracking, invulnerability layers, and game over states.
+Key technical highlights include:
+* **Vector Mechanics & Inertia:** Real-time physics simulation using linear forces (`AddForce`) and rotational torque (`AddTorque`) without manual kinematic solvers.
+* **Toroidal Space Topology:** Dynamic world-space camera boundary calculation enabling continuous screen wrapping across all four edges.
+* **Procedural Object Fracturing:** Dynamic multi-stage splitting of parent game objects into child entities with randomized unit vector impulse trajectories.
+* **Event-Driven Lifecycle:** Singleton state controller (`GameManager`) maintaining score scaling, player lives, spawn invulnerability layers, and Game Over states.
 
 ---
 
 ## ✨ Features
 
-* **Physics-Driven Flight:** Thrust (`AddForce`) and rotational torque (`AddTorque`) creating classic zero-gravity arcade physics.
-* **Toroidal Screen Wrapping:** Smoothly teleports the player ship across opposing screen boundaries without physics velocity interruption.
-* **Procedural Asteroid Fracturing:** Asteroids split into two smaller sub-asteroids upon hit, scaling mass, size, and speed dynamically.
-* **Perimeter Spawning Engine:** Spawns asteroids around screen perimeters with random trajectory angles towards the playable screen area.
-* **Weapon Rate-of-Fire Control:** Firing system with cooldown timers and automatic bullet lifecycle cleanup.
-* **Invulnerability System:** Temporary collision layer suppression upon respawn to ensure safe gameplay entry.
-* **Arcade UI & Explosions:** Score counter, life counter, particle explosion effects, and Enter-key instant game restart flow.
+* **Physics-Driven Spacecraft Control:** Zero-gravity acceleration and steering torque powered by Unity's 2D Rigid-body physics engine.
+* **Toroidal Screen Boundary Wrapping:** Teleports entities exceeding screen edges to opposing perimeters while preserving linear and angular momentum.
+* **Procedural Asteroid Fracturing:** Shot asteroids split into two smaller sub-asteroids down to a configurable minimum size threshold (`0.35f`).
+* **Perimeter Spawner System:** Spawns primary asteroids along a calculated radial distance around screen origin with angular trajectory variance.
+* **Weapon Cooldown Controller:** Fire-rate timer preventing frame-based input spam while enforcing automatic bullet lifecycle cleanup.
+* **Post-Respawn Invulnerability:** Layer-based collision matrix toggle protecting the spacecraft upon respawn.
+* **Arcade Score Engine:** Dynamic score rewards based on asteroid scale tier (+100 for small, +50 for medium, +25 for large).
 
 ---
 
 ## 🛠️ Tech Stack
 
-* **Game Engine:** Unity `2023.1.20f1` (2D Physics & Sprite Pipeline)
-* **Language:** C# (.NET / Mono)
-* **Physics Engine:** Unity 2D Physics Engine (`Rigidbody2D`, `BoxCollider2D`, `CircleCollider2D`, `LayerMask`)
-* **UI & Rendering:** Unity UI (`UnityEngine.UI`), Particle System (`ParticleSystem`), Vector Fonts
+| Domain | Technology / Module | Purpose |
+| :--- | :--- | :--- |
+| **Game Engine** | Unity `2023.1.20f1` | Core runtime engine & 2D rendering pipeline |
+| **Programming Language** | C# 10.0 / .NET Mono | Gameplay logic, state machines, and system scripts |
+| **Physics Engine** | Unity 2D Physics (`Physics2D`) | Rigidbodies, colliders, and collision layer matrix |
+| **UI System** | Unity UI (`UnityEngine.UI`) | Real-time score counter, lives HUD, and overlay screens |
+| **FX & Audio** | Particle System (`ParticleSystem`) | Particle explosion burst effects on destruction |
 
 ---
 
 ## 📐 Architecture Overview
 
-```
-                               +-------------------+
-                               |  GameManager      |
-                               |  (Singleton)      |
-                               +---------+---------+
-                                         |
-            +----------------------------+----------------------------+
-            |                            |                            |
-            v                            v                            v
-   +-----------------+          +------------------+         +-----------------+
-   |  Player         |          | AsteroidSpawner  |         | UI & Effects    |
-   |  - Movement     |          | - Spawns prefabs |         | - Score / Lives |
-   |  - Firing Limit |          +--------+---------+         | - Explosion PS  |
-   |  - Screen Wrap  |                   |                   +-----------------+
-   +--------+--------+                   v
-            |                   +------------------+
-            v                   | Asteroid         |
-   +-----------------+          | - Mass / Sizing  |
-   | Bullet          |          | - Dynamic Split  |
-   +-----------------+          +------------------+
+```mermaid
+graph TD
+    GM[GameManager Singleton] -->|State / Lives / Score| P[Player Spacecraft]
+    GM -->|HUD Updates & FX| UI[Score Text / Particle System]
+    P -->|Instantiates| B[Bullet System]
+    AS[AsteroidSpawner] -->|Perimeter Spawning| A[Asteroid System]
+    B -->|OnCollisionEnter2D| A
+    A -->|OnAsteroidDestroyed| GM
+    P -->|OnCollisionEnter2D| A
+    A -->|OnPlayerDeath| GM
 ```
 
-For detailed architectural breakdown, see [`docs/architecture.md`](docs/architecture.md).  
-For component API references, see [`docs/api.md`](docs/api.md).  
-For architectural decision records, see [`docs/decisions.md`](docs/decisions.md).
+### Documentation Index
+* 📖 **[Setup & Installation Guide](docs/setup.md):** Environment requirements, Unity Hub setup, and project importing.
+* 🎮 **[Usage & Controls Guide](docs/usage.md):** Key bindings, gameplay rules, and scoring tiers.
+* 🏗️ **[Architecture Overview](docs/architecture.md):** Detailed breakdown of systems, event flows, and state machines.
+* 💻 **[Development & Build Guide](docs/development.md):** Command-line builds, C# coding standards, and project configuration.
+* 📋 **[API Reference](docs/api.md):** C# class and method specifications.
+* ⚖️ **[Architecture Decision Records](docs/decisions.md):** Trade-offs and design rationale (ADRs).
+* 🧪 **[Testing & Quality Assurance](docs/testing.md):** Verification protocols and automated checks.
 
 ---
 
-## ⚙️ Installation & Building
+## ⚙️ Quick Start
 
-### Prerequisites
-* **Unity Engine:** Version `2023.1.20f1` (or compatible 2023.x release) with 2D Build Support.
-* **Git LFS:** Required if fetching large binary textures or audio files.
-
-### Cloning & Opening Project
 ```bash
+# Clone the repository
 git clone https://github.com/sedmugen/asteroids.git
-```
-1. Launch **Unity Hub**.
-2. Click **Add** -> **Add project from disk** and select the cloned `asteroids` directory.
-3. Open project using Unity `2023.1.20f1`.
-4. Open the main gameplay scene: `Assets/Scenes/Asteroids.unity`.
 
-### Building Standalone Executable (Windows / macOS / Linux)
-1. In Unity Editor, open **File -> Build Settings**.
-2. Ensure `Assets/Scenes/Asteroids.unity` is included in **Scenes In Build**.
-3. Select your target platform and click **Build**.
+# Navigate into project directory
+cd asteroids
+```
+
+1. Open **Unity Hub** and select **Add project from disk**.
+2. Select the `asteroids` directory (Unity `2023.1.20f1` required).
+3. Open `Assets/Scenes/Asteroids.unity` and click **Play**.
 
 ---
 
-## 🎮 Controls & Usage
+## 🎮 Controls
 
-| Input Action | Primary Key | Secondary Input |
+| Action | Primary Input | Secondary Input |
 | :--- | :--- | :--- |
-| **Thrust Forward** | `W` | `Up Arrow` |
+| **Forward Thrust** | `W` | `Up Arrow` |
 | **Rotate Left** | `A` | `Left Arrow` |
 | **Rotate Right** | `D` | `Right Arrow` |
-| **Shoot Laser** | `Space` | `Left Mouse Click` |
+| **Fire Laser** | `Space` | `Left Mouse Click` |
 | **Restart Game** | `Enter / Return` | — |
 
 ---
 
 ## 🗺️ Roadmap
 
-- [x] Physics-based flight & rotational torque controls
-- [x] Toroidal screen wrapping system
-- [x] Dynamic asteroid splitting and perimeter spawner
-- [x] Score, lives counter, and game over state machine
-- [ ] Upgrade legacy UI text to TextMeshPro (`TMPro.TextMeshProUGUI`)
-- [ ] Object pooling manager for `Bullet` and `Asteroid` game objects
-- [ ] Sound effects (laser shoot, engine thrust, explosions, ambient music)
-- [ ] Controller input integration via Unity Input System (`com.unity.inputsystem`)
+- [x] Zero-gravity physics flight and torque steering
+- [x] Toroidal screen boundary wrapping
+- [x] Procedural asteroid perimeter spawner and fracturing
+- [x] State manager for lives, score, and game over sequence
+- [ ] Refactor UI layer to TextMeshPro (`TMPro.TextMeshProUGUI`)
+- [ ] Generic `ObjectPool<T>` for high-frequency `Bullet` and `Asteroid` entities
+- [ ] Sound effect engine (laser fire, thrust hum, explosions, background audio track)
+- [ ] Gamepad integration via Unity Input System (`com.unity.inputsystem`)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License — see the [`LICENSE`](LICENSE) file for details.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for complete license text.
