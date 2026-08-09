@@ -1,4 +1,5 @@
 using UnityEngine;
+using Asteroids.Core;
 
 namespace Asteroids.Gameplay
 {
@@ -23,12 +24,22 @@ namespace Asteroids.Gameplay
 
         public void Shoot(Vector2 direction)
         {
+            if (rb == null)
+            {
+                rb = GetComponent<Rigidbody2D>();
+            }
             rb.AddForce(direction * speed);
             Destroy(gameObject, maxLifetime);
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
+            // Ignore collisions with other bullet entities
+            if (collision.gameObject.CompareTag(Constants.TAG_BULLET))
+            {
+                return;
+            }
+
             Destroy(gameObject);
         }
     }

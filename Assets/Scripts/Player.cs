@@ -28,6 +28,8 @@ namespace Asteroids.Gameplay
         [Header("Screen Wrapping")]
         [SerializeField] private bool screenWrapping = true;
         private Bounds screenBounds;
+        private int lastScreenWidth;
+        private int lastScreenHeight;
 
         private bool thrusting;
         private float turnDirection;
@@ -108,6 +110,9 @@ namespace Asteroids.Gameplay
         {
             if (Camera.main == null) return;
 
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
+
             screenBounds = new Bounds();
             screenBounds.Encapsulate(Camera.main.ScreenToWorldPoint(Vector3.zero));
             screenBounds.Encapsulate(Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, 0f)));
@@ -115,6 +120,11 @@ namespace Asteroids.Gameplay
 
         private void ScreenWrap()
         {
+            if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+            {
+                UpdateScreenBounds();
+            }
+
             if (rb.position.x > screenBounds.max.x + 0.5f)
             {
                 rb.position = new Vector2(screenBounds.min.x - 0.5f, rb.position.y);
@@ -135,6 +145,8 @@ namespace Asteroids.Gameplay
 
         private void Shoot()
         {
+            if (bulletPrefab == null) return;
+
             nextFireTime = Time.time + fireRate;
             Bullet bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
             bullet.Shoot(transform.up);
@@ -157,7 +169,10 @@ namespace Asteroids.Gameplay
                 rb.velocity = Vector3.zero;
                 rb.angularVelocity = 0f;
 
-                GameManager.Instance.OnPlayerDeath(this);
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.OnPlayerDeath(this);
+                }
             }
         }
     }

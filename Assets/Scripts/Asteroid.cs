@@ -24,7 +24,19 @@ namespace Asteroids.Gameplay
         public float Size
         {
             get => size;
-            set => size = value;
+            set
+            {
+                size = value;
+                transform.localScale = Vector3.one * size;
+                if (rb == null)
+                {
+                    rb = GetComponent<Rigidbody2D>();
+                }
+                if (rb != null)
+                {
+                    rb.mass = size;
+                }
+            }
         }
 
         public float MinSize => minSize;
@@ -53,6 +65,10 @@ namespace Asteroids.Gameplay
 
         public void SetTrajectory(Vector2 direction)
         {
+            if (rb == null)
+            {
+                rb = GetComponent<Rigidbody2D>();
+            }
             rb.AddForce(direction * movementSpeed);
         }
 
@@ -66,7 +82,10 @@ namespace Asteroids.Gameplay
                     CreateSplit();
                 }
 
-                GameManager.Instance.OnAsteroidDestroyed(this);
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.OnAsteroidDestroyed(this);
+                }
                 Destroy(gameObject);
             }
         }
