@@ -7,16 +7,20 @@
 
 > A modern, production-grade 2D recreation of the classic 1979 Atari arcade game *Asteroids*, engineered in Unity 2023 and C# with zero-gravity inertial physics, toroidal screen topology, and dynamic procedural object splitting.
 
+![Asteroids 2D Banner](docs/assets/images/header.png)
+
 ---
 
-## 📷 Gameplay Preview
+## 📷 Gameplay & Visual Showcase
 
-| Demonstration | Visual Showcase |
+| Action / Feature | Visual Preview |
 | :--- | :--- |
 | **Inertial Spacecraft & Laser Firing** | ![Gameplay Demo](docs/assets/gifs/demo.gif) |
 | **Asteroid Fracturing & Score HUD** | ![Gameplay Screenshot](docs/assets/images/gameplay.png) |
+| **Particle Explosions & Collision Destruction** | ![Action Preview](docs/assets/images/action.png) |
 
-*(High-resolution visual assets and recordings are located in the [`docs/assets/`](docs/assets/) directory.)*
+*(High-resolution visual assets and media clips are organized in the [`docs/assets/`](docs/assets/) directory.)*
+
 
 ---
 
