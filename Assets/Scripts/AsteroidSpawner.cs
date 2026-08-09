@@ -1,42 +1,50 @@
-﻿using UnityEngine;
+using UnityEngine;
 
-public class AsteroidSpawner : MonoBehaviour
+namespace Asteroids.Gameplay
 {
-    public Asteroid asteroidPrefab;
-    public float spawnDistance = 12f;
-    public float spawnRate = 1f;
-    public int amountPerSpawn = 1;
-    [Range(0f, 45f)]
-    public float trajectoryVariance = 15f;
-
-    private void Start()
+    /// <summary>
+    /// Spawner system generating asteroids around the screen perimeter at scheduled intervals.
+    /// </summary>
+    public class AsteroidSpawner : MonoBehaviour
     {
-        InvokeRepeating(nameof(Spawn), spawnRate, spawnRate);
-    }
+        [SerializeField] private Asteroid asteroidPrefab;
+        [SerializeField] private float spawnDistance = 12f;
+        [SerializeField] private float spawnRate = 1f;
+        [SerializeField] private int amountPerSpawn = 1;
+        [Range(0f, 45f)]
+        [SerializeField] private float trajectoryVariance = 15f;
 
-    public void Spawn()
-    {
-        for (int i = 0; i < amountPerSpawn; i++)
+        private float spawnTimer;
+
+        private void Update()
         {
-            // Choose a random direction from the center of the spawner and
-            // spawn the asteroid a distance away
-            Vector3 spawnDirection = Random.insideUnitCircle.normalized;
-            Vector3 spawnPoint = transform.position + (spawnDirection * spawnDistance);
+            spawnTimer += Time.deltaTime;
 
-            // Calculate a random variance in the asteroid's rotation which will
-            // cause its trajectory to change
-            float variance = Random.Range(-trajectoryVariance, trajectoryVariance);
-            Quaternion rotation = Quaternion.AngleAxis(variance, Vector3.forward);
+            if (spawnTimer >= spawnRate)
+            {
+                spawnTimer = 0f;
+                Spawn();
+            }
+        }
 
-            // Create the new asteroid by cloning the prefab and set a random
-            // size within the range
-            Asteroid asteroid = Instantiate(asteroidPrefab, spawnPoint, rotation);
-            asteroid.size = Random.Range(asteroid.minSize, asteroid.maxSize);
+        public void Spawn()
+        {
+            if (asteroidPrefab == null) return;
 
-            // Set the trajectory to move in the direction of the spawner
-            Vector2 trajectory = rotation * -spawnDirection;
-            asteroid.SetTrajectory(trajectory);
+            for (int i = 0; i < amountPerSpawn; i++)
+            {
+                Vector3 spawnDirection = Random.insideUnitCircle.normalized;
+                Vector3 spawnPoint = transform.position + (spawnDirection * spawnDistance);
+
+                float variance = Random.Range(-trajectoryVariance, trajectoryVariance);
+                Quaternion rotation = Quaternion.AngleAxis(variance, Vector3.forward);
+
+                Asteroid asteroid = Instantiate(asteroidPrefab, spawnPoint, rotation);
+                asteroid.Size = Random.Range(asteroid.MinSize, asteroid.MaxSize);
+
+                Vector2 trajectory = rotation * -spawnDirection;
+                asteroid.SetTrajectory(trajectory);
+            }
         }
     }
-
 }

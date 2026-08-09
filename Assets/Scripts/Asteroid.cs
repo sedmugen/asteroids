@@ -1,84 +1,86 @@
-﻿using UnityEngine;
+using UnityEngine;
+using Asteroids.Core;
 
-[RequireComponent(typeof(SpriteRenderer))]
-[RequireComponent(typeof(Rigidbody2D))]
-public class Asteroid : MonoBehaviour
+namespace Asteroids.Gameplay
 {
-    private Rigidbody2D rb;
-    private SpriteRenderer spriteRenderer;
-
-    [SerializeField]
-    private Sprite[] sprites;
-
-    public float size = 1f;
-    public float minSize = 0.35f;
-    public float maxSize = 1.65f;
-    public float movementSpeed = 50f;
-    public float maxLifetime = 30f;
-
-    private void Awake()
+    /// <summary>
+    /// Asteroid controller handling random sprite assignment, physics scaling,
+    /// dynamic splitting on hit, and score trigger events.
+    /// </summary>
+    [RequireComponent(typeof(SpriteRenderer))]
+    [RequireComponent(typeof(Rigidbody2D))]
+    public class Asteroid : MonoBehaviour
     {
-        rb = GetComponent<Rigidbody2D>();
-        spriteRenderer = GetComponent<SpriteRenderer>();
-    }
+        private Rigidbody2D rb;
+        private SpriteRenderer spriteRenderer;
 
-    private void Start()
-    {
-        // Assign random properties to make each asteroid feel unique
-        spriteRenderer.sprite = sprites[Random.Range(0, sprites.Length)];
-        transform.eulerAngles = new Vector3(0f, 0f, Random.value * 360f);
+        [SerializeField] private Sprite[] sprites;
+        [SerializeField] private float size = 1f;
+        [SerializeField] private float minSize = 0.35f;
+        [SerializeField] private float maxSize = 1.65f;
+        [SerializeField] private float movementSpeed = 50f;
+        [SerializeField] private float maxLifetime = 30f;
 
-        // Set the scale and mass of the asteroid based on the assigned size so
-        // the physics is more realistic
-        transform.localScale = Vector3.one * size;
-        rb.mass = size;
-
-        // Destroy the asteroid after it reaches its max lifetime
-        Destroy(gameObject, maxLifetime);
-    }
-
-    public void SetTrajectory(Vector2 direction)
-    {
-        // The asteroid only needs a force to be added once since they have no
-        // drag to make them stop moving
-        rb.AddForce(direction * movementSpeed);
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Bullet"))
+        public float Size
         {
-            // Check if the asteroid is large enough to split in half
-            // (both parts must be greater than the minimum size)
-            if ((size * 0.5f) >= minSize)
+            get => size;
+            set => size = value;
+        }
+
+        public float MinSize => minSize;
+        public float MaxSize => maxSize;
+        public float MovementSpeed => movementSpeed;
+
+        private void Awake()
+        {
+            rb = GetComponent<Rigidbody2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void Start()
+        {
+            if (sprites != null && sprites.Length > 0)
             {
-                CreateSplit();
-                CreateSplit();
+                spriteRenderer.sprite = sprites[Random.Range(0, sprites.Length)];
             }
 
-            GameManager.Instance.OnAsteroidDestroyed(this);
+            transform.eulerAngles = new Vector3(0f, 0f, Random.value * 360f);
+            transform.localScale = Vector3.one * size;
+            rb.mass = size;
 
-            // Destroy the current asteroid since it is either replaced by two
-            // new asteroids or small enough to be destroyed by the bullet
-            Destroy(gameObject);
+            Destroy(gameObject, maxLifetime);
+        }
+
+        public void SetTrajectory(Vector2 direction)
+        {
+            rb.AddForce(direction * movementSpeed);
+        }
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (collision.gameObject.CompareTag(Constants.TAG_BULLET))
+            {
+                if ((size * 0.5f) >= minSize)
+                {
+                    CreateSplit();
+                    CreateSplit();
+                }
+
+                GameManager.Instance.OnAsteroidDestroyed(this);
+                Destroy(gameObject);
+            }
+        }
+
+        private Asteroid CreateSplit()
+        {
+            Vector2 position = transform.position;
+            position += Random.insideUnitCircle * 0.5f;
+
+            Asteroid half = Instantiate(this, position, transform.rotation);
+            half.Size = size * 0.5f;
+            half.SetTrajectory(Random.insideUnitCircle.normalized);
+
+            return half;
         }
     }
-
-    private Asteroid CreateSplit()
-    {
-        // Set the new asteroid poistion to be the same as the current asteroid
-        // but with a slight offset so they do not spawn inside each other
-        Vector2 position = transform.position;
-        position += Random.insideUnitCircle * 0.5f;
-
-        // Create the new asteroid at half the size of the current
-        Asteroid half = Instantiate(this, position, transform.rotation);
-        half.size = size * 0.5f;
-
-        // Set a random trajectory
-        half.SetTrajectory(Random.insideUnitCircle.normalized);
-
-        return half;
-    }
-
 }
