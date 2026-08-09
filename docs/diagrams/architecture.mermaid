@@ -1,0 +1,9 @@
+graph TD
+    GM[GameManager Singleton] -->|Controls State / Lives| P[Player Controller]
+    GM -->|Triggers UI & Effects| UI[UI Text / Particle System]
+    P -->|Instantiates| B[Bullet System]
+    AS[AsteroidSpawner] -->|Spawns Perimeter| A[Asteroid System]
+    B -->|OnCollisionEnter2D| A
+    A -->|OnAsteroidDestroyed| GM
+    P -->|OnCollisionEnter2D| A
+    A -->|OnPlayerDeath| GM
