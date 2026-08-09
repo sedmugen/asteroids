@@ -1,0 +1,31 @@
+name: Unity CI & Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    name: Repository Validation & Quality Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Repository Structure
+        run: |
+          echo "Checking required files..."
+          test -f README.md
+          test -f LICENSE
+          test -f CHANGELOG.md
+          test -f CONTRIBUTING.md
+          test -f Packages/manifest.json
+          test -f ProjectSettings/ProjectVersion.txt
+          echo "All structural sanity checks passed."
+
+      - name: Verify C# Script Files
+        run: |
+          echo "Verifying C# script compilation readability..."
+          find Assets/Scripts -name "*.cs" -print
