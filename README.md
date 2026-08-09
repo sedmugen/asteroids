@@ -11,18 +11,6 @@
 
 ---
 
-## 📷 Gameplay & Visual Showcase
-
-| Action / Feature | Visual Preview |
-| :--- | :--- |
-| **Inertial Spacecraft & Laser Firing** | ![Gameplay Demo](docs/assets/gifs/demo.gif) |
-| **Asteroid Fracturing & Score HUD** | ![Gameplay Screenshot](docs/assets/images/gameplay.png) |
-| **Particle Explosions & Collision Destruction** | ![Action Preview](docs/assets/images/action.png) |
-
-*(High-resolution visual assets and media clips are organized in the [`docs/assets/`](docs/assets/) directory.)*
-
-
----
 
 ## 💡 Overview & Motivation
 
